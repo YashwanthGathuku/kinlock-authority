@@ -498,6 +498,10 @@ def conflict_of_interest(action: AgentAction, approver: str, fw: FirewallPolicy 
     if approver in action.beneficiaries:
         return "This would benefit you, so someone else has to approve it"
     p = (fw or FirewallPolicy()).person(approver)
+    if p and p.name:
+        n = FirewallPolicy._n
+        if n(p.name) == n(action.target) or n(p.name) in {n(b) for b in action.beneficiaries}:
+            return "This is about you, so someone else has to approve it"
     if p and p.identifiers:
         text = action.text()
         hit = next((i for i in p.identifiers if i and i in text), None)

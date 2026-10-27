@@ -77,10 +77,16 @@ def test_supporters_cannot_release_without_the_owner_when_she_is_final():
 
 
 def test_same_household_counts_once_so_two_cannot_collude():
-    a = poa()
+    a = AgentAction("r-poa2", "legal", "grant_power_of_attorney", "Elder Law Partners")
     # Anna and Tom share a group: with the owner that's 2 heads, but Anna+Tom alone count as one.
     t = tally(decide(a), a, [Vote("contact:anna", "approve"), Vote("supporter:tom", "approve")], firewall=FW)
     assert t.approvals == ("contact:anna",) and any("same group" in p for p in t.problems)
+
+
+def test_power_of_attorney_to_a_supporter_cannot_be_approved_by_them():
+    a = poa()  # to Tom
+    t = tally(decide(a), a, [Vote("supporter:tom", "approve"), Vote("supporter:raj", "approve")], firewall=FW)
+    assert "supporter:tom" not in t.approvals and t.state != "approved"
 
 
 def test_repeat_votes_count_once():
@@ -165,3 +171,12 @@ def test_firewall_decisions_go_into_signed_receipts(tmp_path):
     rep = chain.verify()
     assert rep.ok and rep.receipts == 1
     assert list(chain.receipts())[0].data["decision"]["outcome"] == "DENY"
+
+
+def test_conflict_when_the_action_names_the_approver():
+    a = AgentAction("r-b", "legal", "change_beneficiary", "Anna", {})
+    assert conflict_of_interest(a, "contact:anna", FW)
+    assert conflict_of_interest(a, "supporter:raj", FW) is None
+    assert conflict_of_interest(a, "owner", FW) is None
+    named = AgentAction("r-c", "legal", "change_beneficiary", "Life policy", {}, beneficiaries=("Anna",))
+    assert conflict_of_interest(named, "contact:anna", FW)
