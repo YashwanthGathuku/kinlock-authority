@@ -13,11 +13,34 @@ Three ideas carry it:
   is an HMAC-signed capability bound to that action's digest, single-use,
   expiring, and capped at the approver's ceiling. The rules run again before
   the action does.
+* Every consequential action, not only payments. `evaluate_action` decides
+  access, identity, data, health, home, legal and communication actions with
+  the same outcomes, plus built-in guards for remote-access scams, account
+  recovery changes, conflicts of interest and quorum approvals (`firewall`).
 * Receipts. Every decision is appended to a hash-chained log that anyone can
   re-verify.
 """
 
 from .approvals import Capability, Signer, capability_problems, issue_capability
+from .firewall import (
+    CATEGORIES,
+    VERBS,
+    ActionDecision,
+    AgentAction,
+    FirewallPolicy,
+    Person,
+    Quorum,
+    Tally,
+    Vote,
+    classify,
+    conflict_of_interest,
+    describe_action,
+    evaluate_action,
+    may_approve_action,
+    release_problems,
+    scam_signals,
+    tally,
+)
 from .policy import (
     Action,
     Check,
@@ -34,6 +57,23 @@ from .policy import (
 from .receipts import ChainReport, Receipt, ReceiptChain
 
 __all__ = [
+    "CATEGORIES",
+    "VERBS",
+    "ActionDecision",
+    "AgentAction",
+    "FirewallPolicy",
+    "Person",
+    "Quorum",
+    "Tally",
+    "Vote",
+    "classify",
+    "conflict_of_interest",
+    "describe_action",
+    "evaluate_action",
+    "may_approve_action",
+    "release_problems",
+    "scam_signals",
+    "tally",
     "Action",
     "Capability",
     "ChainReport",
