@@ -1,5 +1,7 @@
 # kinlock-authority
 
+[![CI](https://github.com/YashwanthGathuku/kinlock-authority/actions/workflows/ci.yml/badge.svg)](https://github.com/YashwanthGathuku/kinlock-authority/actions/workflows/ci.yml)
+
 **Deterministic authority for actions an AI assistant asks to take.** No model in the loop, no dependencies.
 
 By Yashwanth Gathuku. Extracted from [Kinlock](https://github.com/YashwanthGathuku/kinlock), an Alexa+ MCP add-on, so any assistant, agent framework or MCP server can use the same rules.
