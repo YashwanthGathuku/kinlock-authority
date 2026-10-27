@@ -1,0 +1,366 @@
+{
+ "fw": {
+  "known_targets": {
+   "comms": [
+    "Anna",
+    "Dr Patel"
+   ],
+   "home": [
+    "Anna",
+    "Rosa (cleaner)"
+   ]
+  },
+  "people": [
+   {
+    "group": "anna-household",
+    "id": "contact:anna",
+    "identifiers": [
+     "anna@example.com",
+     "+15550101"
+    ],
+    "name": "Anna"
+   },
+   {
+    "group": "anna-household",
+    "id": "supporter:tom",
+    "name": "Tom"
+   },
+   {
+    "id": "supporter:raj",
+    "identifiers": [
+     "raj@example.com"
+    ],
+    "name": "Raj"
+   }
+  ],
+  "quorum": {
+   "legal": {
+    "members": [
+     "contact:anna",
+     "supporter:tom",
+     "supporter:raj"
+    ],
+    "owner_final": true,
+    "required": 2
+   }
+  },
+  "remote_access_allowlist": [
+   "contact:anna"
+  ],
+  "standing": {
+   "comms": [
+    "send_message",
+    "place_call"
+   ],
+   "health": [
+    "refill_prescription"
+   ]
+  }
+ },
+ "fw_one_hour": {
+  "identity_cooloff_seconds": 3600,
+  "known_targets": {
+   "comms": [
+    "Anna",
+    "Dr Patel"
+   ],
+   "home": [
+    "Anna",
+    "Rosa (cleaner)"
+   ]
+  },
+  "people": [
+   {
+    "group": "anna-household",
+    "id": "contact:anna",
+    "identifiers": [
+     "anna@example.com",
+     "+15550101"
+    ],
+    "name": "Anna"
+   },
+   {
+    "group": "anna-household",
+    "id": "supporter:tom",
+    "name": "Tom"
+   },
+   {
+    "id": "supporter:raj",
+    "identifiers": [
+     "raj@example.com"
+    ],
+    "name": "Raj"
+   }
+  ],
+  "quorum": {
+   "legal": {
+    "members": [
+     "contact:anna",
+     "supporter:tom",
+     "supporter:raj"
+    ],
+    "owner_final": true,
+    "required": 2
+   }
+  },
+  "remote_access_allowlist": [
+   "contact:anna"
+  ],
+  "standing": {
+   "comms": [
+    "send_message",
+    "place_call"
+   ],
+   "health": [
+    "refill_prescription"
+   ]
+  }
+ },
+ "fw_quorum_not_final": {
+  "known_targets": {
+   "comms": [
+    "Anna",
+    "Dr Patel"
+   ],
+   "home": [
+    "Anna",
+    "Rosa (cleaner)"
+   ]
+  },
+  "people": [
+   {
+    "group": "anna-household",
+    "id": "contact:anna",
+    "identifiers": [
+     "anna@example.com",
+     "+15550101"
+    ],
+    "name": "Anna"
+   },
+   {
+    "group": "anna-household",
+    "id": "supporter:tom",
+    "name": "Tom"
+   },
+   {
+    "id": "supporter:raj",
+    "identifiers": [
+     "raj@example.com"
+    ],
+    "name": "Raj"
+   }
+  ],
+  "quorum": {
+   "access": {
+    "members": [
+     "contact:anna",
+     "supporter:raj"
+    ],
+    "owner_final": false,
+    "required": 2
+   },
+   "legal": {
+    "members": [
+     "contact:anna",
+     "supporter:raj"
+    ],
+    "owner_final": false,
+    "required": 2
+   }
+  },
+  "remote_access_allowlist": [
+   "contact:anna"
+  ],
+  "standing": {
+   "comms": [
+    "send_message",
+    "place_call"
+   ],
+   "health": [
+    "refill_prescription"
+   ]
+  }
+ },
+ "fw_short_cooloff": {
+  "identity_cooloff_seconds": 5400,
+  "known_targets": {
+   "comms": [
+    "Anna",
+    "Dr Patel"
+   ],
+   "home": [
+    "Anna",
+    "Rosa (cleaner)"
+   ]
+  },
+  "people": [
+   {
+    "group": "anna-household",
+    "id": "contact:anna",
+    "identifiers": [
+     "anna@example.com",
+     "+15550101"
+    ],
+    "name": "Anna"
+   },
+   {
+    "group": "anna-household",
+    "id": "supporter:tom",
+    "name": "Tom"
+   },
+   {
+    "id": "supporter:raj",
+    "identifiers": [
+     "raj@example.com"
+    ],
+    "name": "Raj"
+   }
+  ],
+  "quorum": {
+   "legal": {
+    "members": [
+     "contact:anna",
+     "supporter:tom",
+     "supporter:raj"
+    ],
+    "owner_final": true,
+    "required": 2
+   }
+  },
+  "remote_access_allowlist": [
+   "contact:anna"
+  ],
+  "standing": {
+   "comms": [
+    "send_message",
+    "place_call"
+   ],
+   "health": [
+    "refill_prescription"
+   ]
+  }
+ },
+ "policy": {
+  "blocked_categories": [
+   "gift cards"
+  ],
+  "contacts": [
+   {
+    "ceiling_cents": 50000,
+    "id": "anna",
+    "name": "Anna",
+    "relation": "daughter"
+   }
+  ],
+  "default_limits": {
+   "daily_cents": 10000,
+   "daily_count": 3,
+   "per_action_cents": 5000
+  },
+  "known_merchants": [
+   "Fresh Market",
+   "Corner Pharmacy"
+  ],
+  "known_payees": [
+   "Landlord"
+  ],
+  "limits": {
+   "groceries": {
+    "daily_cents": 30000,
+    "daily_count": 3,
+    "per_action_cents": 15000
+   }
+  },
+  "merchant_categories": {
+   "Fresh Market": "groceries"
+  },
+  "night_hours": [
+   0,
+   5
+  ],
+  "owner": "Mary",
+  "owner_only_above_cents": 100000,
+  "timezone": "America/New_York"
+ },
+ "policy_no_night": {
+  "blocked_categories": [
+   "gift cards"
+  ],
+  "contacts": [
+   {
+    "ceiling_cents": 50000,
+    "id": "anna",
+    "name": "Anna",
+    "relation": "daughter"
+   }
+  ],
+  "default_limits": {
+   "daily_cents": 10000,
+   "daily_count": 3,
+   "per_action_cents": 5000
+  },
+  "known_merchants": [
+   "Fresh Market",
+   "Corner Pharmacy"
+  ],
+  "known_payees": [
+   "Landlord"
+  ],
+  "limits": {
+   "groceries": {
+    "daily_cents": 30000,
+    "daily_count": 3,
+    "per_action_cents": 15000
+   }
+  },
+  "merchant_categories": {
+   "Fresh Market": "groceries"
+  },
+  "night_hours": null,
+  "owner": "Mary",
+  "owner_only_above_cents": 100000,
+  "timezone": "America/New_York"
+ },
+ "policy_wrap_night": {
+  "blocked_categories": [
+   "gift cards"
+  ],
+  "contacts": [
+   {
+    "ceiling_cents": 50000,
+    "id": "anna",
+    "name": "Anna",
+    "relation": "daughter"
+   }
+  ],
+  "default_limits": {
+   "daily_cents": 10000,
+   "daily_count": 3,
+   "per_action_cents": 5000
+  },
+  "known_merchants": [
+   "Fresh Market",
+   "Corner Pharmacy"
+  ],
+  "known_payees": [
+   "Landlord"
+  ],
+  "limits": {
+   "groceries": {
+    "daily_cents": 30000,
+    "daily_count": 3,
+    "per_action_cents": 15000
+   }
+  },
+  "merchant_categories": {
+   "Fresh Market": "groceries"
+  },
+  "night_hours": [
+   22,
+   6
+  ],
+  "owner": "Mary",
+  "owner_only_above_cents": 100000,
+  "timezone": "America/New_York"
+ }
+}

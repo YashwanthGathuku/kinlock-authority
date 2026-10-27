@@ -1,0 +1,3 @@
+{"op": "receipt_sign_hash", "cases": [
+{"expected": "70ba267b7bbf3c1eacec9a8546d5087dd3af9828a62fcef4205588558e3f62a2", "input": {"hash": "abababababababababababababababababababababababababababababababab", "key_hex": "6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b"}, "name": "hash"}
+]}

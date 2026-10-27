@@ -1,0 +1,23 @@
+[package]
+name = "kinlock-authority-core"
+description = "Trusted core of kinlock-authority: canonical digests, the authority firewall rules, capabilities and receipts. A port of the Python reference, kept identical by shared conformance vectors."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# preserve_order keeps JSON objects in input order, as Python dicts do; canonical() sorts keys itself.
+serde_json = { version = "1", features = ["preserve_order"] }
+hmac = "0.12"
+sha2 = "0.10"
+thiserror = "2"
+# Only for owner-configurable scam patterns, which are regular expressions in the policy file.
+regex = { version = "1", default-features = false, features = ["std", "unicode"] }
+
+[dev-dependencies]
+proptest = "1"
+
+[lints]
+workspace = true

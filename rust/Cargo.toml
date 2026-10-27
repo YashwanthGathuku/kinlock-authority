@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = ["kinlock-authority-core", "kinlock-authority-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Yashwanth Gathuku"]
+rust-version = "1.80"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

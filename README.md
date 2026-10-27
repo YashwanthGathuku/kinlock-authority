@@ -81,10 +81,40 @@ The JSON action format is specified in kinlock's `docs/PROTOCOL.md`. Money actio
 | Conflict of interest and collusion are caught; a quorum can't release an owner-level action without her | `tests/test_firewall_approvals.py` |
 | Voice never raises authority, over every category, verb and risk combination | `tests/test_firewall_invariants.py` |
 
+## Languages and architecture
+
+- **Python (`src/kinlock_authority`) is the reference.** Every rule is written here first, and the
+  Python tests are the spec.
+- **Rust (`rust/kinlock-authority-core`) is the trusted core.** It is a port of the deciding code:
+  `canonical`/`digest`, `policy.evaluate` and `may_approve`, the firewall (`evaluate_action`,
+  `scam_signals`, `conflict_of_interest`, `may_approve_action`, quorum `tally`, `release_problems`,
+  `describe_action`, `voice_can_only_lower`), capability signing and `capability_problems`, and
+  receipt `sign_hash` and chain verification. It has `#![forbid(unsafe_code)]` and five dependencies
+  (serde_json, hmac, sha2, regex, thiserror). A proptest checks that a voice request never allows an
+  increase in authority and is never looser than the owner's own channel.
+- **`rust/kinlock-authority-wasm`** wraps the core as a wasm32-unknown-unknown module with one JSON
+  call (`kinlock_input`, `kinlock_run`, `kinlock_output`). The Go gateway in the `kinlock` repo
+  embeds it. The only `allow(unsafe_code)` is on those three `#[no_mangle]` exports. There are no
+  unsafe blocks.
+- **Conformance vectors keep them identical.** `conformance/generate_vectors.py` runs the Python
+  reference over 7,120 cases (16 operations) and stores the exact JSON it returns. Python
+  (`tests/test_conformance.py`), Rust (`rust/kinlock-authority-core/tests/vectors.rs`) and Go must
+  reproduce every case byte for byte. CI also checks that the committed vectors are current.
+
+What is not ported, and stays Python-only: `Policy.apply` (policy edits), issuing capabilities
+(nonce and clock), appending receipts to a file, approval-state storage, and the CLI. There are no
+PyO3 bindings, so Python does not call the Rust core.
+
+Known edges, outside the vectors: Rust `casefold` is a table of Python's special folds on top of
+Unicode lowercase, not Python's full table. `isprintable` is an approximation. Scam patterns go
+through the Rust `regex` crate, which has no lookaround. Integers beyond 64 bits, and
+`NaN`/`Infinity`, are rejected rather than parsed.
+
 ## Tests
 
 ```bash
 pip install pytest && python -m pytest -q
+cd rust && cargo test --release   # unit tests, all conformance vectors, voice proptest
 ```
 
 ## License
