@@ -55,6 +55,32 @@ d.outcome   # Outcome.HOLD
 d.reasons   # ['TechZone is a new shop', '$849.99 is over the $50 per-order limit', ...]
 ```
 
+## Authority firewall (`kinlock_authority.firewall`)
+
+The same idea, beyond payments. `evaluate_action(AgentAction(...), policy, channel=..., frozen=..., firewall=FirewallPolicy)` decides any agent action in eight categories (money, access, identity, data, health, home, legal, comms):
+
+- **Remote access:** refused on an unsolicited call, with scam wording, or for a requester not on the allowlist; otherwise owner-only.
+- **Identity and recovery changes:** owner-only after a 24-hour cool-off.
+- **Letting someone in:** owner-only unless the visitor is known.
+- **Quorum:** per category, people in one group count once, and the owner can be final.
+- **Fail-safe:** unknown categories or verbs are held.
+
+Supporting functions:
+
+- `may_approve_action`, `conflict_of_interest`: nobody may approve an action that names them, benefits them, points at their own email or phone, or that they asked for.
+- `tally`, `release_problems`: votes, including pause and resume.
+- `describe_action`: one plain sentence describing the action.
+- `voice_can_only_lower`: an exhaustive check that voice only lowers.
+
+The JSON action format is specified in kinlock's `docs/PROTOCOL.md`. Money actions go through the original `decide`, so the purchase API is unchanged.
+
+| Claim | Tests |
+| --- | --- |
+| Remote access on a call, with scam wording, or off the allowlist is refused | `tests/test_firewall_guards.py` |
+| Identity changes need the owner after a cool-off, even when she asks | `test_identity_changes_need_the_owner_after_a_cooloff` |
+| Conflict of interest and collusion are caught; a quorum can't release an owner-level action without her | `tests/test_firewall_approvals.py` |
+| Voice never raises authority, over every category, verb and risk combination | `tests/test_firewall_invariants.py` |
+
 ## Tests
 
 ```bash
