@@ -26,3 +26,32 @@ jobs:
         run: pytest -q
       - name: Example runs
         run: python examples/quickstart.py
+      - name: Conformance vectors are up to date
+        if: matrix.python-version == '3.12'
+        run: |
+          python conformance/generate_vectors.py
+          git diff --exit-code -- conformance/vectors
+
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Clippy (wasm32)
+        run: cargo clippy --locked -p kinlock-authority-wasm --target wasm32-unknown-unknown -- -D warnings
+      - name: Test (unit, all conformance vectors, voice proptest)
+        run: cargo test --release --locked -- --nocapture
+      - name: Build WebAssembly module
+        run: |
+          cargo build --release --locked -p kinlock-authority-wasm --target wasm32-unknown-unknown
+          sha256sum target/wasm32-unknown-unknown/release/kinlock_authority_wasm.wasm

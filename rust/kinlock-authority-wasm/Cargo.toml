@@ -1,0 +1,19 @@
+[package]
+name = "kinlock-authority-wasm"
+description = "The Kinlock Authority core as a WebAssembly module with one JSON entry point, for the Go gateway (wazero) and any other host."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+kinlock-authority-core = { path = "../kinlock-authority-core" }
+serde_json = { version = "1", features = ["preserve_order"] }
+
+[lints]
+workspace = true
