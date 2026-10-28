@@ -7,6 +7,7 @@ replay any case exactly.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any
@@ -30,6 +31,25 @@ VOICE = "voice"
 CONTACT = "contact"
 OWNER = "owner"
 CHANNELS = (VOICE, CONTACT, OWNER)
+
+
+# Words that mark a purchase as a scam favourite no matter what category the
+# caller claims: gift cards, crypto, wires, prepaid and money-order products.
+# Matched as whole words against the merchant, the items and the category, so
+# "wireless headphones" is fine and "Bitcoin ATM voucher" is not.
+DEFAULT_BLOCKED_KEYWORDS = (
+    "gift card", "gift cards", "giftcard", "giftcards", "gift voucher", "steam card", "itunes card", "google play card",
+    "crypto", "cryptocurrency", "bitcoin", "btc", "ethereum", "eth", "usdt", "tether", "coinbase", "binance",
+    "wire", "wire transfer", "western union", "moneygram", "money order", "prepaid", "prepaid card", "reload card",
+)
+OTHER = "other"
+
+
+def _keyword_pattern(words) -> re.Pattern[str]:
+    alts = sorted({" ".join(w.casefold().split()) for w in words if w.strip()}, key=len, reverse=True)
+    # Allow any run of spaces, hyphens or nothing between the words of a phrase ("gift-card", "giftcard").
+    body = "|".join(r"[\s\-_]*".join(re.escape(part) for part in a.split(" ")) for a in alts)
+    return re.compile(r"(?<![a-z0-9])(?:" + body + r")(?![a-z0-9])") if alts else re.compile(r"(?!x)x")
 
 
 class Outcome(str, Enum):
@@ -118,6 +138,10 @@ class Policy:
     blocked_categories: frozenset[str]
     owner_only_above_cents: int
     night_hours: tuple[int, int] | None = (0, 5)  # [start, end) local hours that hold spending
+    # merchant (normalised) -> category. The category of a purchase comes from
+    # here, never from the caller; unknown merchants get OTHER (default limits).
+    merchant_categories: dict[str, str] = field(default_factory=dict)
+    blocked_keywords: tuple[str, ...] = DEFAULT_BLOCKED_KEYWORDS
 
     @staticmethod
     def _norm(s: str) -> str:
@@ -138,6 +162,8 @@ class Policy:
             blocked_categories=frozenset(cls._norm(c) for c in d.get("blocked_categories", [])),
             owner_only_above_cents=int(d["owner_only_above_cents"]),
             night_hours=(int(night[0]), int(night[1])) if night else None,
+            merchant_categories={cls._norm(str(k)): cls._norm(str(v)) for k, v in d.get("merchant_categories", {}).items()},
+            blocked_keywords=tuple(str(w) for w in d.get("blocked_keywords", DEFAULT_BLOCKED_KEYWORDS)),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -153,7 +179,37 @@ class Policy:
             "blocked_categories": sorted(self.blocked_categories),
             "owner_only_above_cents": self.owner_only_above_cents,
             "night_hours": list(self.night_hours) if self.night_hours else None,
+            "merchant_categories": dict(sorted(self.merchant_categories.items())),
+            "blocked_keywords": list(self.blocked_keywords),
         }
+
+    def resolve_category(self, action: "Action") -> str:
+        """The category the rules use for a spending action. The caller's word is never trusted.
+
+        Transfers are always "transfer". A purchase takes its merchant's category
+        from the owner's catalog (`merchant_categories`). A merchant the owner
+        already trusts (`known_merchants`) but never mapped keeps the claimed
+        category, for policies written before the catalog existed. Any other
+        merchant is OTHER, with the default limits, unless the caller itself named
+        a blocked category: a caller may make things stricter, never looser.
+        """
+        if action.kind == "transfer":
+            return "transfer"
+        mapped = self.merchant_categories.get(self._norm(action.counterparty))
+        if mapped:
+            return mapped
+        claimed = self._norm(action.category)
+        if claimed in self.blocked_categories:
+            return claimed
+        if claimed and self._norm(action.counterparty) in self.known_merchants:
+            return claimed
+        return OTHER
+
+    def blocked_keyword(self, action: "Action") -> str | None:
+        """The first blocked keyword found in the merchant, items or claimed category, if any."""
+        text = " ".join([action.counterparty, action.category, *action.items]).casefold()
+        m = _keyword_pattern(self.blocked_keywords).search(text)
+        return m.group(0) if m else None
 
     def limits_for(self, category: str) -> Limits:
         return self.limits.get(self._norm(category), self.default_limits)
@@ -279,13 +335,15 @@ def evaluate(action: Action, policy: Policy, *, channel: str, frozen: bool, hist
     # Spending. Hard rules first: nothing can approve past these.
     checks: list[Check] = []
     amount = int(action.amount_cents)
-    category = Policy._norm(action.category or "other")
+    category = policy.resolve_category(action)
     who = Policy._norm(action.counterparty)
     checks.append(Check("lock", not frozen, "Safety lock is on" if frozen else "Safety lock is off"))
     blocked = category in policy.blocked_categories
-    label = (action.category or "this category").strip()
-    label = label[0].upper() + label[1:]
+    label = category[0].upper() + category[1:]
     checks.append(Check("category", not blocked, f"{label} are always blocked" if blocked else f"{label} isn't a blocked category"))
+    hit = policy.blocked_keyword(action)
+    if hit:
+        checks.append(Check("keywords", False, f"Requests mentioning {hit!r} are always blocked: gift cards, crypto, wires and prepaid cards are what scammers ask for"))
     if amount <= 0:
         checks.append(Check("amount", False, "The amount must be more than zero"))
     if not who:
