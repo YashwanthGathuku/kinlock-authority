@@ -34,8 +34,9 @@ block and approval ceiling still applies.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any, Iterable
+from typing import Any
 
 from .canonical import digest
 from .policy import (
@@ -208,7 +209,7 @@ class AgentAction:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "AgentAction":
+    def from_dict(cls, d: dict[str, Any]) -> AgentAction:
         return cls(
             request_id=str(d["request_id"]),
             category=str(d.get("category", "")).strip().casefold(),
@@ -280,7 +281,7 @@ class FirewallPolicy:
         return " ".join(str(s).casefold().split())
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any] | None) -> "FirewallPolicy":
+    def from_dict(cls, d: dict[str, Any] | None) -> FirewallPolicy:
         d = d or {}
         n = cls._n
         return cls(

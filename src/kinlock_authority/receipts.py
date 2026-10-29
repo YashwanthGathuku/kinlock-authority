@@ -18,11 +18,12 @@ import hmac
 import json
 import os
 import threading
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from .canonical import digest
 
@@ -30,7 +31,7 @@ GENESIS = "0" * 64
 
 
 def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 @dataclass(frozen=True)
@@ -103,8 +104,8 @@ class ReceiptChain:
     def append(self, kind: str, data: dict[str, Any], ts: str | None = None) -> Receipt:
         with self._lock:
             last: Receipt | None = None
-            for last in self.receipts():
-                pass
+            for receipt in self.receipts():
+                last = receipt
             seq = 0 if last is None else last.seq + 1
             prev = GENESIS if last is None else last.hash
             body = {"seq": seq, "ts": ts or utc_now_iso(), "kind": kind, "data": data, "prev": prev}

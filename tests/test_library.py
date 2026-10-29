@@ -4,7 +4,19 @@ import json
 
 import pytest
 
-from kinlock_authority import Action, History, Outcome, Policy, ReceiptChain, Signer, authority_direction, capability_problems, evaluate, issue_capability, may_approve
+from kinlock_authority import (
+    Action,
+    History,
+    Outcome,
+    Policy,
+    ReceiptChain,
+    Signer,
+    authority_direction,
+    capability_problems,
+    evaluate,
+    issue_capability,
+    may_approve,
+)
 
 POLICY = Policy.from_dict({
     "owner": "Mary",

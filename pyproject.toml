@@ -21,3 +21,12 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# Long literal tables and messages are intentional; StrEnum would change str() output of public enums.
+ignore = ["E501", "UP042"]
