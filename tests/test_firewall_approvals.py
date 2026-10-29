@@ -4,7 +4,19 @@ from __future__ import annotations
 
 from fw_common import FW, POLICY
 
-from kinlock_authority import AgentAction, Outcome, ReceiptChain, Signer, Vote, capability_problems, evaluate_action, issue_capability, may_approve_action, release_problems, tally
+from kinlock_authority import (
+    AgentAction,
+    Outcome,
+    ReceiptChain,
+    Signer,
+    Vote,
+    capability_problems,
+    evaluate_action,
+    issue_capability,
+    may_approve_action,
+    release_problems,
+    tally,
+)
 from kinlock_authority.firewall import conflict_of_interest
 
 ANNA = POLICY.contacts[0]

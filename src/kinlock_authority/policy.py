@@ -92,7 +92,7 @@ class Action:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Action":
+    def from_dict(cls, d: dict[str, Any]) -> Action:
         return cls(
             request_id=str(d["request_id"]),
             kind=str(d["kind"]),
@@ -148,7 +148,7 @@ class Policy:
         return " ".join(s.casefold().split())
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Policy":
+    def from_dict(cls, d: dict[str, Any]) -> Policy:
         lim = lambda x: Limits(int(x["per_action_cents"]), int(x["daily_cents"]), int(x["daily_count"]))  # noqa: E731
         night = d.get("night_hours", [0, 5])
         return cls(
@@ -183,7 +183,7 @@ class Policy:
             "blocked_keywords": list(self.blocked_keywords),
         }
 
-    def resolve_category(self, action: "Action") -> str:
+    def resolve_category(self, action: Action) -> str:
         """The category the rules use for a spending action. The caller's word is never trusted.
 
         Transfers are always "transfer". A purchase takes its merchant's category
@@ -205,7 +205,7 @@ class Policy:
             return claimed
         return OTHER
 
-    def blocked_keyword(self, action: "Action") -> str | None:
+    def blocked_keyword(self, action: Action) -> str | None:
         """The first blocked keyword found in the merchant, items or claimed category, if any."""
         text = " ".join([action.counterparty, action.category, *action.items]).casefold()
         m = _keyword_pattern(self.blocked_keywords).search(text)
@@ -230,7 +230,7 @@ class Policy:
             return int(getattr(self.limits_for(head), tail))
         return None
 
-    def with_setting(self, setting: str, value: int) -> "Policy":
+    def with_setting(self, setting: str, value: int) -> Policy:
         if setting == "owner_only_above_cents":
             return replace(self, owner_only_above_cents=value)
         head, _, tail = setting.rpartition(".")
@@ -242,7 +242,7 @@ class Policy:
         limits[self._norm(head)] = replace(cur, **{tail: value})
         return replace(self, limits=limits)
 
-    def apply(self, action: Action) -> "Policy":
+    def apply(self, action: Action) -> Policy:
         """The policy after an allowed rule-changing action."""
         n = self._norm
         k = action.kind

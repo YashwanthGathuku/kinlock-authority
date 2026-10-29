@@ -1,5 +1,8 @@
 """Decide what an assistant may do, approve one exact action, and keep a receipt."""
 
+import tempfile
+from pathlib import Path
+
 from kinlock_authority import Action, History, Policy, ReceiptChain, Signer, capability_problems, evaluate, issue_capability
 
 policy = Policy.from_dict({
@@ -25,6 +28,7 @@ print(capability_problems(signer, cap, request_id="req_1", current_digest=laptop
 print(evaluate(Action("req_2", "unfreeze"), policy, channel="voice", frozen=True, history=History(), local_hour=10).reasons)
 # ["Voice can lower authority but can't raise it; only Mary can, from her own secure page"]
 
-chain = ReceiptChain("receipts.jsonl")
+# Write receipts to a throwaway directory so running the example never dirties the repo.
+chain = ReceiptChain(str(Path(tempfile.mkdtemp(prefix="kinlock-quickstart-")) / "receipts.jsonl"))
 chain.append("decided", {"request_id": "req_1", "decision": d.to_dict()})
 print(chain.verify().ok)

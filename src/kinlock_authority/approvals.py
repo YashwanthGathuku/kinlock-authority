@@ -41,7 +41,7 @@ class Capability:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Capability":
+    def from_dict(cls, d: dict[str, Any]) -> Capability:
         return cls(**d)
 
 
